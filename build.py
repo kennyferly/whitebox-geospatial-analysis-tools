@@ -35,6 +35,7 @@ def makejar(folder):
 def release():
     #copy all the extra files to the release folder
     print("Copying Files")
+    subprocess.call(mkdir + ' release', shell=True)
     subprocess.call(mkdir + ' release' + slash + 'resources', shell=True)
     subprocess.call(copyTree + ' resources' + slash + '* release' + slash + 'resources' + slash, shell=True)
     subprocess.call(copyFile + ' bin' + slash + '*.jar release' + slash + 'resources' + slash + 'plugins', shell=True)
@@ -222,5 +223,4 @@ apiWin = " WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartograp
 
 #build
 clean()
-#makeRelease()
-#clean()
+makeRelease()
