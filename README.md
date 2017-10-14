@@ -7,7 +7,7 @@ Whitebox GAT is an open-source geographical information system (GIS) and remote 
 
 Getting Started
 ---------------
-Compiled versions of Whitebox GAT are available from the Whitebox homepage (http://www.uoguelph.ca/~hydrogeo/Whitebox/). To work with the source code, clone the Github repository using *git* and open the individual projects in *NetBeans IDE* (https://netbeans.org/). NetBeans may complain that there are unresolved conflicts, likely that there are missing library files. Click to resolve the conflicts. You will find each of the library dependencies within the *WhiteboxGIS* project folder.
+Compiled versions of Whitebox GAT are available from the Whitebox homepage (http://www.uoguelph.ca/~hydrogeo/Whitebox/). To work with the source code, clone the Github repository using *git*. To build the project, open a command prompt, change directory ('cd') to the directory containing the Whitebox code, and run the build script (python build.py). This will require having the Java Development Kit (JDK) version 8 installed, along with a Python installation.
 
 Screenshots
 -----------
