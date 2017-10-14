@@ -541,7 +541,9 @@ public class VectorPolygonsToRaster implements WhiteboxPlugin {
                         if (cell.z == smallNumber) {
                             output.setValue(cell.row, cell.col, backgroundValue);
                         } else {
-                            output.setValue(cell.row, cell.col, cell.z);
+                            if (output.getValue(cell.row, cell.col) == backgroundValue) {
+                                output.setValue(cell.row, cell.col, cell.z);
+                            }
                         }
                         j++;
                         if (j % 1000 == 0) {
