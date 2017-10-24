@@ -3,8 +3,6 @@
 # Build script for Whitebox-GAT
 # September 2017
 
-
-
 import subprocess
 import platform
 
@@ -35,7 +33,6 @@ def makejar(folder):
 def copySourceFiles(folder):
     print("Copying Source Files: " + folder)
     subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
-
 
 def release():
     #copy all the extra files to the release folder
@@ -79,7 +76,6 @@ def WhiteboxAPI():
 
     print("Copying Source Files: " + folder)
     subprocess.call(copyTree  + ' ' + apiWin + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
-
 
 def ConversionTools():
     folder = 'ConversionTools'
