@@ -3,8 +3,6 @@
 # Build script for Whitebox-GAT
 # September 2017
 
-
-
 import subprocess
 import platform
 
@@ -12,6 +10,7 @@ def normalBuild(folder):
     compileNormal(folder)
     copyMetaInf(folder)
     makejar(folder)
+    copySourceFiles(folder)
 
 #compiles the .java files into bin/
 def compileNormal(folder):
@@ -31,6 +30,9 @@ def makejar(folder):
     print("Making jar: " + folder)
     subprocess.call(cd  + ' bin/' + folder + '/ && jar -cf0 ../' + folder + '.jar *', shell=True)
 
+def copySourceFiles(folder):
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def release():
     #copy all the extra files to the release folder
@@ -112,9 +114,11 @@ def Photogrammetry():
     folder = 'Photogrammetry'
     print("Compiling: " + folder)
     subprocess.call(mkdir + ' bin' + slash + folder, shell=True)
-    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/plugins/*.java ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
+    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
     copyMetaInf(folder)
     makejar(folder)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def RasterCalculator():
     folder = 'RasterCalculator'
@@ -126,6 +130,8 @@ def RasterCalculator():
     makejar(folder)
     #copy to lib/
     subprocess.call(copyFile + ' bin' + slash + 'RasterCalculator.jar lib' + slash + 'RasterCalculator.jar', shell=True)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + '/rastercalculator/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def RasterCreation():
     folder = 'RasterCreation'
@@ -161,11 +167,14 @@ def clean():
     if (windows):
         subprocess.call(rm + ' bin\\', shell=True)
         subprocess.call(rm + ' release\\', shell=True)
+        subprocess.call(rm + ' resources\\plugins\\source_files\\', shell=True)
         subprocess.call(mkdir + ' bin\\', shell=True)
         subprocess.call(mkdir + ' release\\', shell=True)
+        subprocess.call(mkdir + ' resources\\plugins\\source_files\\', shell=True)
     else:
         subprocess.call(rm + ' bin/*', shell=True)
         subprocess.call(rm + ' release/*', shell=True)
+        subprocess.call(rm + ' resources/plugins/source_files/*', shell=True)
 
 def makeTest():
     clean()
@@ -219,8 +228,7 @@ slash = "/"
 if(windows):
     slash = "\\"
 
-apiWin = " WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
+apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
 #build
-clean()
 makeRelease()
