@@ -2,3 +2,7 @@
 /Photogrammetry/dist/
 /WhiteboxGIS/build/
 *.jar
+bin/*
+release/*
+lib/RasterCalculator.jar
+lib/WhiteBoxAPI.jar
