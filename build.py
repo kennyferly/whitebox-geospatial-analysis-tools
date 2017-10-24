@@ -74,9 +74,6 @@ def WhiteboxAPI():
     #copy to lib/
     subprocess.call(copyFile + ' bin' +slash +folder+ '.jar lib' + slash +folder+ '.jar', shell=True)
 
-    print("Copying Source Files: " + folder)
-    subprocess.call(copyTree  + ' ' + apiWin + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
-
 def ConversionTools():
     folder = 'ConversionTools'
     normalBuild(folder)
@@ -164,8 +161,6 @@ def WhiteboxGIS():
     subprocess.call('javac -sourcepath WhiteboxGIS -cp "lib/*" -d bin/WhiteboxGIS WhiteboxGIS/whiteboxgis/*.java WhiteboxGIS/whiteboxgis/user_interfaces/*.java', shell=True)
     print("Making jar: " + folder)
     subprocess.call(cd + ' bin' + slash + 'WhiteboxGIS' + slash + ' && jar cmf0 ..' + slash + '..' + slash + 'WhiteboxGIS' + slash + 'MANIFEST.MF ..' + slash + 'WhiteboxGIS.jar *', shell=True)
-    print("Copying Source Files: " + folder)
-    subprocess.call(copyTree  + ' ' + 'WhiteboxGIS/whiteboxgis/*.java WhiteboxGIS/whiteboxgis/user_interfaces/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def clean():
     print("Cleaning bin/ and release/")
