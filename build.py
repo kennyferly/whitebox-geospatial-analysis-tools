@@ -77,6 +77,10 @@ def WhiteboxAPI():
     #copy to lib/
     subprocess.call(copyFile + ' bin' +slash +folder+ '.jar lib' + slash +folder+ '.jar', shell=True)
 
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + apiWin + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+
+
 def ConversionTools():
     folder = 'ConversionTools'
     normalBuild(folder)
@@ -117,9 +121,11 @@ def Photogrammetry():
     folder = 'Photogrammetry'
     print("Compiling: " + folder)
     subprocess.call(mkdir + ' bin' + slash + folder, shell=True)
-    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/plugins/*.java ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
+    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
     copyMetaInf(folder)
     makejar(folder)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def RasterCalculator():
     folder = 'RasterCalculator'
@@ -131,6 +137,8 @@ def RasterCalculator():
     makejar(folder)
     #copy to lib/
     subprocess.call(copyFile + ' bin' + slash + 'RasterCalculator.jar lib' + slash + 'RasterCalculator.jar', shell=True)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + '/rastercalculator/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def RasterCreation():
     folder = 'RasterCreation'
@@ -160,17 +168,22 @@ def WhiteboxGIS():
     subprocess.call('javac -sourcepath WhiteboxGIS -cp "lib/*" -d bin/WhiteboxGIS WhiteboxGIS/whiteboxgis/*.java WhiteboxGIS/whiteboxgis/user_interfaces/*.java', shell=True)
     print("Making jar: " + folder)
     subprocess.call(cd + ' bin' + slash + 'WhiteboxGIS' + slash + ' && jar cmf0 ..' + slash + '..' + slash + 'WhiteboxGIS' + slash + 'MANIFEST.MF ..' + slash + 'WhiteboxGIS.jar *', shell=True)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + 'WhiteboxGIS/whiteboxgis/*.java WhiteboxGIS/whiteboxgis/user_interfaces/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def clean():
     print("Cleaning bin/ and release/")
     if (windows):
         subprocess.call(rm + ' bin\\', shell=True)
         subprocess.call(rm + ' release\\', shell=True)
+        subprocess.call(rm + ' resources\\pulgins\\source_files\\', shell=True)
         subprocess.call(mkdir + ' bin\\', shell=True)
         subprocess.call(mkdir + ' release\\', shell=True)
+        subprocess.call(mkdir + ' resources\\pulgins\\source_files\\', shell=True)
     else:
         subprocess.call(rm + ' bin/*', shell=True)
         subprocess.call(rm + ' release/*', shell=True)
+        subprocess.call(rm + ' resources/plugins/source_files/*', shell=True)
 
 def makeTest():
     clean()
@@ -224,7 +237,7 @@ slash = "/"
 if(windows):
     slash = "\\"
 
-apiWin = " WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
+apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
 #build
 clean()
