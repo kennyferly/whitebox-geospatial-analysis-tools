@@ -167,10 +167,10 @@ def clean():
     if (windows):
         subprocess.call(rm + ' bin\\', shell=True)
         subprocess.call(rm + ' release\\', shell=True)
-        subprocess.call(rm + ' resources\\pulgins\\source_files\\', shell=True)
+        subprocess.call(rm + ' resources\\plugins\\source_files\\', shell=True)
         subprocess.call(mkdir + ' bin\\', shell=True)
         subprocess.call(mkdir + ' release\\', shell=True)
-        subprocess.call(mkdir + ' resources\\pulgins\\source_files\\', shell=True)
+        subprocess.call(mkdir + ' resources\\plugins\\source_files\\', shell=True)
     else:
         subprocess.call(rm + ' bin/*', shell=True)
         subprocess.call(rm + ' release/*', shell=True)
@@ -231,5 +231,4 @@ if(windows):
 apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
 #build
-clean()
 makeRelease()
