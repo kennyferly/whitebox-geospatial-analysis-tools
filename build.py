@@ -12,6 +12,7 @@ def normalBuild(folder):
     compileNormal(folder)
     copyMetaInf(folder)
     makejar(folder)
+    copySourceFiles(folder)
 
 #compiles the .java files into bin/
 def compileNormal(folder):
@@ -30,6 +31,10 @@ def copyMetaInf(folder):
 def makejar(folder):
     print("Making jar: " + folder)
     subprocess.call(cd  + ' bin/' + folder + '/ && jar -cf0 ../' + folder + '.jar *', shell=True)
+
+def copySourceFiles(folder):
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 
 def release():
