@@ -69,9 +69,6 @@ def release():
     subprocess.call(copyFile + ' release' + slash + 'resources' + slash + 'ReleaseNotes.txt release' + slash + 'ReleaseNotes.txt', shell=True)
     subprocess.call(copyFile + ' release' + slash + 'resources' + slash + 'Whitebox.bat release' + slash + 'Whitebox.bat', shell=True)
     print("Deleting Files")
-    #subprocess.call(rm + ' release/lib/groovy-all-2.4.1.jar', shell=True)
-    #subprocess.call(rm + ' release/lib/javax.mail.jar', shell=True)
-    #subprocess.call(rm + ' release/lib/proj4j-0.1.0.jar', shell=True)
     subprocess.call(rmFile + ' release' + slash + 'lib' + slash + 'MathTools.jar', shell=True)
     subprocess.call(rmFile + ' release' + slash + 'resources' + slash + 'plugins' + slash + 'WhiteboxAPI.jar', shell=True)
     subprocess.call(rmFile + ' release' + slash + 'resources' + slash + 'plugins' + slash + 'WhiteboxGIS.jar', shell=True)
@@ -83,10 +80,7 @@ def WhiteboxAPI():
     print("Compiling: " + folder)
     #make folder in bin/ and compile
     subprocess.call(mkdir + ' bin' + slash + folder + '', shell=True)
-    #if (windows):
     subprocess.call('javac -sourcepath ' +folder+ ' -cp "lib/*" -d bin/' +folder+ ' ' + apiWin, shell=True)
-    #else:
-    #    subprocess.call('javac -sourcepath ' +folder+ ' -cp "lib/*" -d bin/' +folder+ ' ' +folder+ '/whitebox/*/*.java ' +folder+ '/whitebox/*/*/*.java ' +folder+ '/whitebox/*/*/*/*.java', shell=True)
     #copy the internationalization files into bin/
     subprocess.call(copyTree + ' ' + folder + slash + 'whitebox' + slash + 'internationalization' + slash + '*.properties bin' + slash + folder + slash + 'whitebox' + slash + 'internationalization' + slash, shell=True)
     #make jar as usual
