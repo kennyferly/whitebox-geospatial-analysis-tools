@@ -5,6 +5,8 @@
 
 import subprocess
 import platform
+import sys
+
 
 def normalBuild(folder):
     compileNormal(folder)
@@ -230,5 +232,19 @@ if(windows):
 
 apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
-#build
-makeRelease()
+if (len(sys.argv) == 1):
+    print("No arguments specified, assuming test")
+    makeTest()
+elif (len(sys.argv) == 2 and sys.argv[1] == "test"):
+    print("Make test")
+    makeTest()
+elif (len(sys.argv) == 2 and sys.argv[1] == "release"):
+    print("Make release")
+    makeRelease()
+elif (len(sys.argv) == 2 and sys.argv[1] == "clean"):
+    print("Cleaning")
+    clean()
+else:
+    print("Unrecognized arument. Valid arguments are:")
+    print("test, release, clean")
+    print("No argument assumes test")
