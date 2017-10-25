@@ -6,3 +6,4 @@ bin/*
 release/*
 lib/RasterCalculator.jar
 lib/WhiteBoxAPI.jar
+*.DS_Store

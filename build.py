@@ -52,6 +52,7 @@ def makejar(folder):
 
 def copySourceFiles(folder):
     if (isRelease):
+        subprocess.call(mkdir + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
         print("Copying Source Files: " + folder)
         subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
@@ -128,12 +129,14 @@ def Photogrammetry():
     folder = 'Photogrammetry'
     print("Compiling: " + folder)
     subprocess.call(mkdir + ' bin' + slash + folder, shell=True)
-    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
+    subprocess.call('javac -sourcepath ' + folder + ' -cp "lib/*" -d bin/' + folder + ' ' + folder + '/jopensurf/*.java ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ', shell=True)
     copyMetaInf(folder)
     makejar(folder)
-    if (isRelease):
-        print("Copying Source Files: " + folder)
-        subprocess.call(copyTree  + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+    # if (isRelease):
+        # print("Copying Source Files: " + folder)
+        # subprocess.call(copyTree  + ' ' + folder + '/photogrammetry/*.java ' + folder + '/photogrammetry/util/*.java ' + folder + '/photogrammetry/util/model/*.java ' + folder + '/photogrammetry/util/model/linalg/*.java ' + folder + '/photogrammetry/util/model/models/*.java ' + folder + '/photogrammetry/util/model/project/*.java ' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+    #copy to lib/
+    subprocess.call(copyFile + ' bin' + slash + 'Photogrammetry.jar lib' + slash + 'Photogrammetry.jar', shell=True)
 
 def RasterCalculator():
     folder = 'RasterCalculator'
@@ -145,9 +148,9 @@ def RasterCalculator():
     makejar(folder)
     #copy to lib/
     subprocess.call(copyFile + ' bin' + slash + 'RasterCalculator.jar lib' + slash + 'RasterCalculator.jar', shell=True)
-    if (isRelease):
-        print("Copying Source Files: " + folder)
-        subprocess.call(copyTree  + ' ' + folder + '/rastercalculator/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+    # if (isRelease):
+        # print("Copying Source Files: " + folder)
+        # subprocess.call(copyTree  + ' ' + folder + '/rastercalculator/*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def RasterCreation():
     folder = 'RasterCreation'
