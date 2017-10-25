@@ -70,7 +70,6 @@ def WhiteboxAPI():
     subprocess.call('javac -sourcepath ' +folder+ ' -cp "lib/*" -d bin/' +folder+ ' ' + apiWin, shell=True)
     #else:
     #    subprocess.call('javac -sourcepath ' +folder+ ' -cp "lib/*" -d bin/' +folder+ ' ' +folder+ '/whitebox/*/*.java ' +folder+ '/whitebox/*/*/*.java ' +folder+ '/whitebox/*/*/*/*.java', shell=True)
-    print("Making jar: " + folder)
     #copy the internationalization files into bin/
     subprocess.call(copyTree + ' ' + folder + slash + 'whitebox' + slash + 'internationalization' + slash + '*.properties bin' + slash + folder + slash + 'whitebox' + slash + 'internationalization' + slash, shell=True)
     #make jar as usual
@@ -210,6 +209,14 @@ def makeRelease():
     makeTest()
     release()
 
+def help():
+    print("Arguments:")
+    print("Make whole project:")
+    print("[release][test]")
+    print("Make individual packages")
+    print("[clean][whiteboxapi][conversiontools][fileoperations][geasytools, gistools, hydrotools, imageprocessingtools, importexport, lidartools, mathtools, photogrammetry, rastercalculator, rastercreation, statstools, streamnetworkanalysistools, terrainanalysistools, vectortools][whiteboxgis]")
+    print("No argument assumes test")
+
 #figure out if it's windows or not
 windows = False
 if ("Windows" in platform.platform()):
@@ -238,9 +245,13 @@ if(windows):
 
 apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
+functions = {"clean":clean, "whiteboxapi":WhiteboxAPI, "conversiontools":ConversionTools, "fileoperations":FIleOperations, "geasytools":GeasyTools, "gistools":GISTools, "hydrotools":HydroTools, "imageprocessingtools":ImageProcessingTools, "importexport":ImportExport, "lidartools":LidarTools, "mathtools":MathTools, "photogrammetry":Photogrammetry, "rastercalculator":RasterCalculator, "rastercreation":RasterCreation, "statstools":StatsTools, "streamnetworkanalysistools":StreamNetworkAnalysisTools, "terrainanalysistools":TerrainAnalysisTools, "vectortools":VectorTools, "whiteboxgis":WhiteboxGIS}
+
 if (len(sys.argv) == 1):
     print("No arguments specified, assuming test")
     makeTest()
+elif len(sys.argv) == 2 and sys.argv[1] == "test":
+    help()
 elif (len(sys.argv) == 2 and sys.argv[1] == "test"):
     print("Make test")
     makeTest()
@@ -249,8 +260,17 @@ elif (len(sys.argv) == 2 and sys.argv[1] == "release"):
     makeRelease()
 elif (len(sys.argv) == 2 and sys.argv[1] == "clean"):
     print("Cleaning")
-    clean()
+    functions["clean"]()
 else:
-    print("Unrecognized argument. Valid arguments are:")
-    print("[test, release, clean]")
-    print("No argument assumes test")
+    for arg in sys.argv:
+        found = False
+        for func in functions:
+            if arg == func:
+                found = True
+                functions[func]()
+            elif arg == "build.py":
+                found = True
+        if found == False:
+            print("Unrecognized argument: " + arg)
+            help()
+            break
