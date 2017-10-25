@@ -1,7 +1,9 @@
 # Isaac Wismer
 # idw.wismer@gmail.com
 # Build script for Whitebox-GAT
+# Originally written:
 # September 2017
+# Updated Oct 2017
 
 import subprocess
 import platform
