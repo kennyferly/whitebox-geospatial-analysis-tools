@@ -251,6 +251,6 @@ elif (len(sys.argv) == 2 and sys.argv[1] == "clean"):
     print("Cleaning")
     clean()
 else:
-    print("Unrecognized arument. Valid arguments are:")
-    print("test, release, clean")
+    print("Unrecognized argument. Valid arguments are:")
+    print("[test, release, clean]")
     print("No argument assumes test")
