@@ -230,6 +230,9 @@ def help():
     print("Make individual packages")
     print("[clean][whiteboxapi][conversiontools][fileoperations][geasytools, gistools, hydrotools, imageprocessingtools, importexport, lidartools, mathtools, photogrammetry, rastercalculator, rastercreation, statstools, streamnetworkanalysistools, terrainanalysistools, vectortools][whiteboxgis]")
     print("No argument assumes test")
+    print("Examples:")
+    print("python build.py release\npython build.py WhiteboxAPI GIStools\npython build.py clean GIStools vectorTools")
+    print("Note: arguments are not case sensitive")
 
 #figure out if it's windows or not
 windows = False
@@ -289,7 +292,7 @@ else:
         #loop through all the functions to find match
         for func in functions:
             #if they match, run the function and mark valid
-            if arg == func:
+            if arg.lower() == func:
                 found = True
                 functions[func]()
             #case for argv[0]
