@@ -30,7 +30,8 @@ def normalBuild(folder):
     compileNormal(folder)
     copyMetaInf(folder)
     makejar(folder)
-    copySourceFiles(folder)
+    if (isRelease):
+        copySourceFiles(folder)
 
 #compiles the .java files into bin/
 def compileNormal(folder):
@@ -51,10 +52,9 @@ def makejar(folder):
     subprocess.call(cd  + ' bin/' + folder + '/ && jar -cf0 ../' + folder + '.jar *', shell=True)
 
 def copySourceFiles(folder):
-    if (isRelease):
-        subprocess.call(mkdir + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
-        print("Copying Source Files: " + folder)
-        subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+    subprocess.call(mkdir + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
+    print("Copying Source Files: " + folder)
+    subprocess.call(copyTree  + ' ' + folder + slash + 'plugins' + slash + '*.java' + ' resources' + slash + 'plugins' + slash + 'source_files' + slash, shell=True)
 
 def release():
     #copy all the extra files to the release folder
