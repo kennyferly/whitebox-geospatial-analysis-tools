@@ -181,6 +181,60 @@ def WhiteboxGIS():
     print("Making jar: " + folder)
     subprocess.call(cd + ' bin' + slash + 'WhiteboxGIS' + slash + ' && jar cmf0 ..' + slash + '..' + slash + 'WhiteboxGIS' + slash + 'MANIFEST.MF ..' + slash + 'WhiteboxGIS.jar *', shell=True)
 
+def WhiteboxTools():
+    try:
+        update_cargo = False
+        clean_code = False
+        doc_code = False
+        build_code = True
+        mode = 'release'  # 'check', 'debug', or 'release'
+
+        # Change the current directory
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        os.chdir(dir_path)
+
+        if update_cargo:
+            # Update #
+            retcode = call(['cargo', 'update'], shell=False)
+            if retcode < 0:
+                print >>sys.stderr, "Child was terminated by signal", -retcode
+            else:
+                print >>sys.stderr, "Update successful"
+
+        if clean_code:
+            # Clean #
+            retcode = call(['cargo', 'clean'], shell=False)
+            if retcode < 0:
+                print >>sys.stderr, "Child was terminated by signal", -retcode
+            else:
+                print >>sys.stderr, "Clean successful"
+
+        if doc_code:
+            # Clean #
+            retcode = call(['cargo', 'doc'], shell=False)
+            if retcode < 0:
+                print >>sys.stderr, "Child was terminated by signal", -retcode
+            else:
+                print >>sys.stderr, "Clean successful"
+
+        if build_code:
+            # Build #
+            if mode == 'release':
+                retcode = call(['env', 'RUSTFLAGS=-C target-cpu=native', 'CARGO_INCREMENTAL=1',
+                                'cargo', 'build', '--release'], shell=False)
+            elif mode == 'check':
+                retcode = call(['cargo', 'check'], shell=False)
+            else:
+                retcode = call(['cargo', 'build'], shell=False)
+
+            if retcode < 0:
+                print >>sys.stderr, "Child was terminated by signal", -retcode
+            else:
+                print >>sys.stderr, "Build executed successfully"
+
+    except OSError as err:
+        print >>sys.stderr, "Execution failed:", err
+
 def clean():
     print("Cleaning bin/ and release/")
     if (windows):
@@ -221,6 +275,7 @@ def makeRelease():
     global isRelease
     isRelease = True
     makeTest()
+    whiteboxtools()
     release()
 
 def help():
@@ -264,7 +319,7 @@ if(windows):
 apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
 #dictionart of functions
-functions = {"clean":clean, "whiteboxapi":WhiteboxAPI, "conversiontools":ConversionTools, "fileoperations":FIleOperations, "geasytools":GeasyTools, "gistools":GISTools, "hydrotools":HydroTools, "imageprocessingtools":ImageProcessingTools, "importexport":ImportExport, "lidartools":LidarTools, "mathtools":MathTools, "photogrammetry":Photogrammetry, "rastercalculator":RasterCalculator, "rastercreation":RasterCreation, "statstools":StatsTools, "streamnetworkanalysistools":StreamNetworkAnalysisTools, "terrainanalysistools":TerrainAnalysisTools, "vectortools":VectorTools, "whiteboxgis":WhiteboxGIS}
+functions = {"clean":clean, "whiteboxapi":WhiteboxAPI, "conversiontools":ConversionTools, "fileoperations":FIleOperations, "geasytools":GeasyTools, "gistools":GISTools, "hydrotools":HydroTools, "imageprocessingtools":ImageProcessingTools, "importexport":ImportExport, "lidartools":LidarTools, "mathtools":MathTools, "photogrammetry":Photogrammetry, "rastercalculator":RasterCalculator, "rastercreation":RasterCreation, "statstools":StatsTools, "streamnetworkanalysistools":StreamNetworkAnalysisTools, "terrainanalysistools":TerrainAnalysisTools, "vectortools":VectorTools, "whiteboxgis":WhiteboxGIS, "whiteboxtools":WhiteboxTools}
 
 #no args
 if (len(sys.argv) == 1):
