@@ -1338,7 +1338,6 @@ public class WhiteboxGui extends JFrame implements ThreadListener, ActionListene
     public void runPlugin(String pluginName, String[] args, boolean runOnDedicatedThread,
             boolean suppressReturnedData) {
         try {
-
             this.suppressReturnedData = suppressReturnedData;
             runPlugin(pluginName, args, runOnDedicatedThread);
 
@@ -1680,7 +1679,6 @@ public class WhiteboxGui extends JFrame implements ThreadListener, ActionListene
     @Override
     public void launchDialog(String pluginName) {
 //        populateToolTabs();
-
         boolean isScript = false;
         String scriptFile = null;
         for (int i = 0; i < plugInfo.size(); i++) {
@@ -1706,6 +1704,7 @@ public class WhiteboxGui extends JFrame implements ThreadListener, ActionListene
             // does this plugin provide it's own dialog?
             boolean pluginProvidesDialog = false;
             String parameterFile = FileUtilities.findFileInDirectory(new File(resourcesDirectory + "plugins" + pathSep), plug.getName() + ".xml");
+
 //            String parameterFile = resourcesDirectory + "plugins"
 //                    + pathSep + "Dialogs" + pathSep + plug.getName() + ".xml";
 //            if (parameterFile == null) {
@@ -1737,6 +1736,7 @@ public class WhiteboxGui extends JFrame implements ThreadListener, ActionListene
                     }
                 }
             } catch (ParserConfigurationException | SAXException | IOException e) {
+                showFeedback(e.toString());
                 LOGGER.log(Level.SEVERE, "WhiteboxGui.launchDialog", e);
                 //System.out.println(e.getMessage());
             }

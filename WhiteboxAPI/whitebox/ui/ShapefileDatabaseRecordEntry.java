@@ -146,6 +146,8 @@ public class ShapefileDatabaseRecordEntry extends JDialog implements PropertyCha
                     }
                     if (attributeFieldNames[i].equals("FID")) {
                         numProp.setValue(String.valueOf(shapefile.getNumberOfRecords() + 1));
+                        Double value = (double)(Integer.parseInt(String.valueOf(shapefile.getNumberOfRecords() + 1)));
+                        recordData[i] = value;
                     }
                     numProp.addPropertyChangeListener("value", this);
                     numProp.setPreferredWidth(250);
