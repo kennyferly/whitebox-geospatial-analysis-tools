@@ -205,6 +205,21 @@ def makeRelease():
     makeTest()
     release()
 
+<<<<<<< HEAD
+=======
+def help():
+    print("Arguments:")
+    print("Make whole project:")
+    print("[release][test]")
+    print("Make individual packages")
+    print("[clean][whiteboxapi][conversiontools][fileoperations][geasytools, gistools, hydrotools, imageprocessingtools, importexport, lidartools, mathtools, photogrammetry, rastercalculator, rastercreation, statstools, streamnetworkanalysistools, terrainanalysistools, vectortools][whiteboxgis]")
+    print("If no argument is provided, the test argument is assumed")
+    print("\nExamples:")
+    print("python build.py release\npython build.py WhiteboxAPI GIStools\npython build.py clean GIStools vectorTools")
+    print("Note: arguments are not case sensitive")
+    print("\nclean must be the first argument, or you will delete the code that you have just compiled")
+
+>>>>>>> origin/master
 #figure out if it's windows or not
 windows = False
 if ("Windows" in platform.platform()):
