@@ -69,6 +69,7 @@ def release():
     subprocess.call(copyFile + ' release' + slash + 'resources' + slash + 'ReadMe.txt release' + slash + 'README.TXT', shell=True)
     subprocess.call(copyFile + ' release' + slash + 'resources' + slash + 'ReleaseNotes.txt release' + slash + 'ReleaseNotes.txt', shell=True)
     subprocess.call(copyFile + ' release' + slash + 'resources' + slash + 'Whitebox.bat release' + slash + 'Whitebox.bat', shell=True)
+    subprocess.call(copyFile + ' whitebox_tools' + slash + 'target' + slash + 'release' + slash + 'whitebox_tools' + ext + ' release' + slash +'resources' + slash + 'plugins' + slash + 'NativePlugins' + slash, shell=True)
     print("Deleting Files")
     subprocess.call(rmFile + ' release' + slash + 'lib' + slash + 'MathTools.jar', shell=True)
     subprocess.call(rmFile + ' release' + slash + 'resources' + slash + 'plugins' + slash + 'WhiteboxAPI.jar', shell=True)
@@ -182,10 +183,9 @@ def WhiteboxGIS():
     subprocess.call(cd + ' bin' + slash + 'WhiteboxGIS' + slash + ' && jar cmf0 ..' + slash + '..' + slash + 'WhiteboxGIS' + slash + 'MANIFEST.MF ..' + slash + 'WhiteboxGIS.jar *', shell=True)
 
 def WhiteboxTools():
-    subprocess.call(cd  + ' whitebox_tools' + slash, shell=True)
-    subprocess.call('cargo build --release', shell=True);
-    subprocess.call(cd  + ' ..', shell=True)
- 
+    print("Compiling: WhiteboxTools")
+    print("This will take some time, especially on slower computers.\nGo make yourself a cup of coffee (or have a nap if your computer is slow.")
+    subprocess.call(cd  + ' whitebox_tools' + slash + ' && cargo build --release', shell=True); 
 
 def clean():
     print("Cleaning bin/ and release/")
@@ -227,7 +227,7 @@ def makeRelease():
     global isRelease
     isRelease = True
     makeTest()
-    whiteboxtools()
+    WhiteboxTools()
     release()
 
 def help():
@@ -267,6 +267,9 @@ if(windows):
 slash = "/"
 if(windows):
     slash = "\\"
+ext = ""
+if (windows):
+    ext = ".exe"
 
 apiWin = "WhiteboxAPI/whitebox/algorithms/*.java WhiteboxAPI/whitebox/cartographic/*.java WhiteboxAPI/whitebox/georeference/*.java WhiteboxAPI/whitebox/geospatialfiles/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/*.java WhiteboxAPI/whitebox/geospatialfiles/shapefile/attributes/*.java WhiteboxAPI/whitebox/interfaces/*.java WhiteboxAPI/whitebox/internationalization/*.java WhiteboxAPI/whitebox/parallel/*.java WhiteboxAPI/whitebox/plugins/*.java WhiteboxAPI/whitebox/projections/*.java WhiteboxAPI/whitebox/serialization/*.java WhiteboxAPI/whitebox/stats/*.java WhiteboxAPI/whitebox/structures/*.java WhiteboxAPI/whitebox/ui/*.java WhiteboxAPI/whitebox/ui/carto_properties/*.java WhiteboxAPI/whitebox/ui/plugin_dialog/*.java WhiteboxAPI/whitebox/utilities/*.java"
 
