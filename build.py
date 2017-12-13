@@ -184,7 +184,7 @@ def WhiteboxGIS():
 
 def WhiteboxTools():
     print("Compiling: WhiteboxTools")
-    print("This will take some time, especially on slower computers.\nGo make yourself a cup of coffee (or have a nap if your computer is slow.")
+    print("This will take some time, especially on slower computers.\nGo make yourself a cup of coffee (or have a nap if your computer is slow).")
     subprocess.call(cd  + ' whitebox_tools' + slash + ' && cargo build --release', shell=True); 
 
 def clean():
