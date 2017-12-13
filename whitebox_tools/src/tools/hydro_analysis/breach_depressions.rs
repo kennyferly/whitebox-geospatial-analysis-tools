@@ -2,8 +2,12 @@
 This tool is part of the WhiteboxTools geospatial analysis library.
 Authors: Dr. John Lindsay
 Created: June 28, 2017
-Last Modified: June 28, 2017
+Last Modified: November 16, 2017
 License: MIT
+
+Notes: Algorithm based on Lindsay JB. 2016. Efficient hybrid breaching-filling sink removal 
+methods for flow path enforcement in digital elevation models. Hydrological Processes, 
+30(6): 846–857. DOI: 10.1002/hyp.10648
 */
 extern crate time;
 
@@ -17,12 +21,12 @@ use std::f64;
 use raster::*;
 use std::io::{Error, ErrorKind};
 use structures::Array2D;
-use tools::WhiteboxTool;
+use tools::*;
 
 pub struct BreachDepressions {
     name: String,
     description: String,
-    parameters: String,
+    parameters: Vec<ToolParameter>,
     example_usage: String,
 }
 
@@ -30,13 +34,50 @@ impl BreachDepressions {
     pub fn new() -> BreachDepressions { // public constructor
         let name = "BreachDepressions".to_string();
         
-        let description = "Breaches all of the depressions in a DEM. This should be preferred over depression filling in most cases.".to_string();
+        let description = "Breaches all of the depressions in a DEM using Lindsay's (2016) algorithm. This should be preferred over depression filling in most cases.".to_string();
         
-        let mut parameters = "--dem           Input raster DEM file.\n".to_owned();
-        parameters.push_str("-o, --output    Output raster file.\n");
-        parameters.push_str("--max_depth     Optional maximum breach depth (default is Inf).\n");
-        parameters.push_str("--max_length    Optional maximum breach channel length (in cells; default is Inf).\n");
+        // let mut parameters = "--dem           Input raster DEM file.\n".to_owned();
+        // parameters.push_str("-o, --output    Output raster file.\n");
+        // parameters.push_str("--max_depth     Optional maximum breach depth (default is Inf).\n");
+        // parameters.push_str("--max_length    Optional maximum breach channel length (in cells; default is Inf).\n");
         
+        let mut parameters = vec![];
+        parameters.push(ToolParameter{
+            name: "Input DEM File".to_owned(), 
+            flags: vec!["-i".to_owned(), "--dem".to_owned()], 
+            description: "Input raster DEM file.".to_owned(),
+            parameter_type: ParameterType::ExistingFile(ParameterFileType::Raster),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Output File".to_owned(), 
+            flags: vec!["-o".to_owned(), "--output".to_owned()], 
+            description: "Output raster file.".to_owned(),
+            parameter_type: ParameterType::NewFile(ParameterFileType::Raster),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Maximum Breach Depth (z units)".to_owned(), 
+            flags: vec!["--max_depth".to_owned()], 
+            description: "Optional maximum breach depth (default is Inf).".to_owned(),
+            parameter_type: ParameterType::Float,
+            default_value: None,
+            optional: true
+        });
+
+        parameters.push(ToolParameter{
+            name: "Maximum Breach Channel Length (grid cells)".to_owned(), 
+            flags: vec!["--max_length".to_owned()], 
+            description: "Optional maximum breach channel length (in grid cells; default is Inf).".to_owned(),
+            parameter_type: ParameterType::Float,
+            default_value: None,
+            optional: true
+        });
+
         let sep: String = path::MAIN_SEPARATOR.to_string();
         let p = format!("{}", env::current_dir().unwrap().display());
         let e = format!("{}", env::current_exe().unwrap().display());
@@ -51,6 +92,10 @@ impl BreachDepressions {
 }
 
 impl WhiteboxTool for BreachDepressions {
+    fn get_source_file(&self) -> String {
+        String::from(file!())
+    }
+    
     fn get_tool_name(&self) -> String {
         self.name.clone()
     }
@@ -60,7 +105,10 @@ impl WhiteboxTool for BreachDepressions {
     }
 
     fn get_tool_parameters(&self) -> String {
-        self.parameters.clone()
+        match serde_json::to_string(&self.parameters) {
+            Ok(json_str) => return format!("{{\"parameters\":{}}}", json_str),
+            Err(err) => return format!("{:?}", err),
+        }
     }
 
     fn get_example_usage(&self) -> String {
@@ -76,7 +124,7 @@ impl WhiteboxTool for BreachDepressions {
         
         if args.len() == 0 {
             return Err(Error::new(ErrorKind::InvalidInput,
-                                "Tool run with no paramters. Please see help (-h) for parameter descriptions."));
+                                "Tool run with no paramters."));
         }
         for i in 0..args.len() {
             let mut arg = args[i].replace("\"", "");
@@ -150,7 +198,7 @@ impl WhiteboxTool for BreachDepressions {
 
         let min_val = input.configs.minimum;
         let elev_digits = ((input.configs.maximum - min_val) as i64).to_string().len();
-        let elev_multiplier = 10.0_f64.powi((7 - elev_digits) as i32);
+        let elev_multiplier = 10.0_f64.powi((5 - elev_digits) as i32);
         let small_num = 1.0 / elev_multiplier as f64;
         
         let mut output = Raster::initialize_using_file(&output_file, &input);

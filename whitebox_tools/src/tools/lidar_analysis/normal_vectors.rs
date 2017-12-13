@@ -2,7 +2,7 @@
 This tool is part of the WhiteboxTools geospatial analysis library.
 Authors: Dr. John Lindsay
 Created: June 26, 2017
-Last Modified: July 17, 2017
+Last Modified: November 16, 2017
 License: MIT
 */
 extern crate time;
@@ -17,15 +17,14 @@ use std::sync::Arc;
 use std::sync::mpsc;
 use std::thread;
 use lidar::*;
-// use lidar::point_data::*;
-use tools::WhiteboxTool;
+use tools::*;
 use self::na::Vector3;
 use structures::FixedRadiusSearch3D;
 
 pub struct NormalVectors {
     name: String,
     description: String,
-    parameters: String,
+    parameters: Vec<ToolParameter>,
     example_usage: String,
 }
 
@@ -34,10 +33,34 @@ impl NormalVectors {
         let name = "NormalVectors".to_string();
         
         let description = "Calculates normal vectors for points within a LAS file and stores these data (XYZ vector components) in the RGB field.".to_string();
-        
-        let parameters = "-i, --input        Input LAS file.
--o, --output       Output LAS file.
---radius           Search radius; default is 1.0.".to_owned();
+
+        let mut parameters = vec![];
+        parameters.push(ToolParameter{
+            name: "Input File".to_owned(), 
+            flags: vec!["-i".to_owned(), "--input".to_owned()], 
+            description: "Input LiDAR file.".to_owned(),
+            parameter_type: ParameterType::ExistingFile(ParameterFileType::Lidar),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Output File".to_owned(), 
+            flags: vec!["-o".to_owned(), "--output".to_owned()], 
+            description: "Output LiDAR file.".to_owned(),
+            parameter_type: ParameterType::NewFile(ParameterFileType::Lidar),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Search Radius".to_owned(), 
+            flags: vec!["--radius".to_owned()], 
+            description: "Search Radius.".to_owned(),
+            parameter_type: ParameterType::Float,
+            default_value: Some("1.0".to_owned()),
+            optional: false
+        });
   
         let sep: String = path::MAIN_SEPARATOR.to_string();
         let p = format!("{}", env::current_dir().unwrap().display());
@@ -53,6 +76,10 @@ impl NormalVectors {
 }
 
 impl WhiteboxTool for NormalVectors {
+    fn get_source_file(&self) -> String {
+        String::from(file!())
+    }
+    
     fn get_tool_name(&self) -> String {
         self.name.clone()
     }
@@ -62,7 +89,17 @@ impl WhiteboxTool for NormalVectors {
     }
 
     fn get_tool_parameters(&self) -> String {
-        self.parameters.clone()
+        let mut s = String::from("{\"parameters\": [");
+        for i in 0..self.parameters.len() {
+            if i < self.parameters.len() - 1 {
+                s.push_str(&(self.parameters[i].to_string()));
+                s.push_str(",");
+            } else {
+                s.push_str(&(self.parameters[i].to_string()));
+            }
+        }
+        s.push_str("]}");
+        s
     }
 
     fn get_example_usage(&self) -> String {
@@ -76,7 +113,7 @@ impl WhiteboxTool for NormalVectors {
         
         // read the arguments
         if args.len() == 0 {
-            return Err(Error::new(ErrorKind::InvalidInput, "Tool run with no paramters. Please see help (-h) for parameter descriptions."));
+            return Err(Error::new(ErrorKind::InvalidInput, "Tool run with no paramters."));
         }
         for i in 0..args.len() {
             let mut arg = args[i].replace("\"", "");
@@ -201,7 +238,7 @@ impl WhiteboxTool for NormalVectors {
         output.header.point_format = 2;
 
         let (mut r, mut g, mut b): (u16, u16, u16);
-        for i in 0..input.header.number_of_points as usize {
+        for i in 0..n_points {
             let p: PointData = input.get_point_info(i);
             r = ((1.0 + normal_values[i].x) / 2.0 * 255.0) as u16 * 256u16; //((1.0 + normal_values[i].x) / 2.0 * 65535.0) as u16;
             g = ((1.0 + normal_values[i].y) / 2.0 * 255.0) as u16 * 256u16; //((1.0 + normal_values[i].y) / 2.0 * 65535.0) as u16;
@@ -241,6 +278,9 @@ impl WhiteboxTool for NormalVectors {
 fn plane_from_points(points: &Vec<Vector3<f64>>) -> Vector3<f64> {
     let n = points.len();
     // assert!(n >= 3, "At least three points required");
+    if n < 3 {
+        return Vector3 { x: 0f64, y: 0f64, z: 0f64 };
+    }
 
     let mut sum = Vector3{ x: 0.0, y: 0.0, z: 0.0 };
     for p in points {

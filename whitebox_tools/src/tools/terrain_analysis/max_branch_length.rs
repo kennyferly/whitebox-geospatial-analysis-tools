@@ -2,8 +2,12 @@
 This tool is part of the WhiteboxTools geospatial analysis library.
 Authors: Dr. John Lindsay
 Created: July 9, 2017
-Last Modified: July 9, 2017
+Last Modified: November 16, 2017
 License: MIT
+
+Notes: Based on Lindsay JB, Seibert J. 2013. Measuring the significance of a divide 
+to local drainage patterns. International Journal of Geographical Information Science, 
+27: 1453-1468. DOI: 10.1080/13658816.2012.705289
 */
 extern crate time;
 extern crate num_cpus;
@@ -17,12 +21,12 @@ use std::thread;
 use raster::*;
 use std::io::{Error, ErrorKind};
 use structures::Array2D;
-use tools::WhiteboxTool;
+use tools::*;
 
 pub struct MaxBranchLength {
     name: String,
     description: String,
-    parameters: String,
+    parameters: Vec<ToolParameter>,
     example_usage: String,
 }
 
@@ -30,12 +34,40 @@ impl MaxBranchLength {
     pub fn new() -> MaxBranchLength { // public constructor
         let name = "MaxBranchLength".to_string();
         
-        let description = "Branch length is used to map drainage divides or ridge lines.".to_string();
+        let description = "Lindsay and Seibert's (2013) branch length index is used to map drainage divides or ridge lines.".to_string();
         
-        let mut parameters = "--dem          Input raster DEM file.\n".to_owned();
-        parameters.push_str("-o, --output   Output raster file.\n");
-        parameters.push_str("--log          Optional flag to request the output be log-transformed.\n");
-         
+        // let mut parameters = "--dem          Input raster DEM file.\n".to_owned();
+        // parameters.push_str("-o, --output   Output raster file.\n");
+        // parameters.push_str("--log          Optional flag to request the output be log-transformed.\n");
+        
+        let mut parameters = vec![];
+        parameters.push(ToolParameter{
+            name: "Input DEM File".to_owned(), 
+            flags: vec!["-i".to_owned(), "--dem".to_owned()], 
+            description: "Input raster DEM file.".to_owned(),
+            parameter_type: ParameterType::ExistingFile(ParameterFileType::Raster),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Output File".to_owned(), 
+            flags: vec!["-o".to_owned(), "--output".to_owned()], 
+            description: "Output raster file.".to_owned(),
+            parameter_type: ParameterType::NewFile(ParameterFileType::Raster),
+            default_value: None,
+            optional: false
+        });
+
+        parameters.push(ToolParameter{
+            name: "Log-transform the output?".to_owned(), 
+            flags: vec!["--log".to_owned()], 
+            description: "Optional flag to request the output be log-transformed.".to_owned(),
+            parameter_type: ParameterType::Boolean,
+            default_value: None,
+            optional: true
+        });
+
         let sep: String = path::MAIN_SEPARATOR.to_string();
         let p = format!("{}", env::current_dir().unwrap().display());
         let e = format!("{}", env::current_exe().unwrap().display());
@@ -50,6 +82,10 @@ impl MaxBranchLength {
 }
 
 impl WhiteboxTool for MaxBranchLength {
+    fn get_source_file(&self) -> String {
+        String::from(file!())
+    }
+    
     fn get_tool_name(&self) -> String {
         self.name.clone()
     }
@@ -59,7 +95,17 @@ impl WhiteboxTool for MaxBranchLength {
     }
 
     fn get_tool_parameters(&self) -> String {
-        self.parameters.clone()
+        let mut s = String::from("{\"parameters\": [");
+        for i in 0..self.parameters.len() {
+            if i < self.parameters.len() - 1 {
+                s.push_str(&(self.parameters[i].to_string()));
+                s.push_str(",");
+            } else {
+                s.push_str(&(self.parameters[i].to_string()));
+            }
+        }
+        s.push_str("]}");
+        s
     }
 
     fn get_example_usage(&self) -> String {
@@ -73,7 +119,7 @@ impl WhiteboxTool for MaxBranchLength {
         
         if args.len() == 0 {
             return Err(Error::new(ErrorKind::InvalidInput,
-                                "Tool run with no paramters. Please see help (-h) for parameter descriptions."));
+                                "Tool run with no paramters."));
         }
         for i in 0..args.len() {
             let mut arg = args[i].replace("\"", "");

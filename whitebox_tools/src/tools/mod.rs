@@ -7,6 +7,8 @@ pub mod math_stat_analysis;
 pub mod stream_network_analysis;
 pub mod terrain_analysis;
 
+use serde_json;
+// use serde_json::Value;
 use tools;
 use std::io::{Error, ErrorKind};
 
@@ -81,6 +83,7 @@ impl ToolManager {
         tool_names.push("FlowAccumulationFullWorkflow".to_string());
         tool_names.push("FlowLengthDiff".to_string());
         tool_names.push("Hillslopes".to_string());
+        tool_names.push("Isobasins".to_string());
         tool_names.push("JensonSnapPourPoints".to_string());
         tool_names.push("MaxUpslopeFlowpathLength".to_string());
         tool_names.push("NumInflowingNeighbours".to_string());
@@ -149,6 +152,7 @@ impl ToolManager {
         tool_names.push("BlockMaximum".to_string());
         tool_names.push("BlockMinimum".to_string());
         tool_names.push("FilterLidarScanAngles".to_string());
+        tool_names.push("FindFlightlineEdgePoints".to_string());
         tool_names.push("FlightlineOverlap".to_string());
         tool_names.push("LasToAscii".to_string());
         tool_names.push("LidarElevationSlice".to_string());
@@ -160,6 +164,8 @@ impl ToolManager {
         tool_names.push("LidarKappaIndex".to_string());
         tool_names.push("LidarNearestNeighbourGridding".to_string());
         tool_names.push("LidarPointDensity".to_string());
+        tool_names.push("LidarSegmentation".to_string());
+        tool_names.push("LidarSegmentationBasedFilter".to_string());
         tool_names.push("LidarTile".to_string());
         tool_names.push("LidarTophatTransform".to_string());
         tool_names.push("NormalVectors".to_string());
@@ -247,6 +253,7 @@ impl ToolManager {
 
         // terrain_analysis
         tool_names.push("Aspect".to_string());
+        tool_names.push("FeaturePreservingDenoise".to_string());
         tool_names.push("DevFromMeanElev".to_string());
         tool_names.push("DiffFromMeanElev".to_string());
         tool_names.push("DirectionalRelief".to_string());
@@ -257,6 +264,7 @@ impl ToolManager {
         tool_names.push("ElevRelativeToWatershedMinMax".to_string());
         tool_names.push("FetchAnalysis".to_string());
         tool_names.push("FillMissingData".to_string());
+        tool_names.push("FindRidges".to_string());
         tool_names.push("Hillshade".to_string());
         tool_names.push("HorizonAngle".to_string());
         tool_names.push("MaxBranchLength".to_string());
@@ -371,6 +379,7 @@ impl ToolManager {
             "flowaccumulationfullworkflow" => Some(Box::new(tools::hydro_analysis::FlowAccumulationFullWorkflow::new())),
             "flowlengthdiff" => Some(Box::new(tools::hydro_analysis::FlowLengthDiff::new())),
             "hillslopes" => Some(Box::new(tools::hydro_analysis::Hillslopes::new())),
+            "isobasins" => Some(Box::new(tools::hydro_analysis::Isobasins::new())),
             "jensonsnappourpoints" => {
                 Some(Box::new(tools::hydro_analysis::JensonSnapPourPoints::new()))
             }
@@ -462,6 +471,7 @@ impl ToolManager {
             "blockmaximum" => Some(Box::new(tools::lidar_analysis::BlockMaximum::new())),
             "blockminimum" => Some(Box::new(tools::lidar_analysis::BlockMinimum::new())),
             "filterlidarscanangles" => Some(Box::new(tools::lidar_analysis::FilterLidarScanAngles::new())),
+            "findflightlineedgepoints" => Some(Box::new(tools::lidar_analysis::FindFlightlineEdgePoints::new())),
             "flightlineoverlap" => Some(Box::new(tools::lidar_analysis::FlightlineOverlap::new())),
             "lastoascii" => Some(Box::new(tools::lidar_analysis::LasToAscii::new())),
             "lidarelevationslice" => {
@@ -481,6 +491,8 @@ impl ToolManager {
                 Some(Box::new(tools::lidar_analysis::LidarNearestNeighbourGridding::new()))
             }
             "lidarpointdensity" => Some(Box::new(tools::lidar_analysis::LidarPointDensity::new())),
+            "lidarsegmentation" => Some(Box::new(tools::lidar_analysis::LidarSegmentation::new())),
+            "lidarsegmentationbasedfilter" => Some(Box::new(tools::lidar_analysis::LidarSegmentationBasedFilter::new())),
             "lidartile" => Some(Box::new(tools::lidar_analysis::LidarTile::new())),
             "lidartophattransform" => {
                 Some(Box::new(tools::lidar_analysis::LidarTophatTransform::new()))
@@ -602,6 +614,7 @@ impl ToolManager {
 
             // terrain_analysis
             "aspect" => Some(Box::new(tools::terrain_analysis::Aspect::new())),
+            "featurepreservingdenoise" => Some(Box::new(tools::terrain_analysis::FeaturePreservingDenoise::new())),
             "devfrommeanelev" => Some(Box::new(tools::terrain_analysis::DevFromMeanElev::new())),
             "difffrommeanelev" => Some(Box::new(tools::terrain_analysis::DiffFromMeanElev::new())),
             "directionalrelief" => {
@@ -614,6 +627,7 @@ impl ToolManager {
             "elevrelativetowatershedminmax" => Some(Box::new(tools::terrain_analysis::ElevRelativeToWatershedMinMax::new())),
             "fetchanalysis" => Some(Box::new(tools::terrain_analysis::FetchAnalysis::new())),
             "fillmissingdata" => Some(Box::new(tools::terrain_analysis::FillMissingData::new())),
+            "findridges" => Some(Box::new(tools::terrain_analysis::FindRidges::new())),
             "hillshade" => Some(Box::new(tools::terrain_analysis::Hillshade::new())),
             "horizonangle" => Some(Box::new(tools::terrain_analysis::HorizonAngle::new())),
             "maxbranchlength" => Some(Box::new(tools::terrain_analysis::MaxBranchLength::new())),
@@ -681,6 +695,19 @@ impl ToolManager {
         Ok(())
     }
 
+    pub fn tool_parameters(&self, tool_name: String) -> Result<(), Error> {
+        match self.get_tool(tool_name.as_ref()) {
+            Some(tool) => {
+                println!("{}", tool.get_tool_parameters())
+            }, 
+            None => {
+                return Err(Error::new(ErrorKind::NotFound,
+                                      format!("Unrecognized tool name {}.", tool_name)))
+            }
+        }
+        Ok(())
+    }
+
     pub fn list_tools(&self) {
         let mut tool_details: Vec<(String, String)> = Vec::new();
 
@@ -696,6 +723,41 @@ impl ToolManager {
 
         println!("{}", ret);
     }
+
+    pub fn list_tools_with_keywords(&self, keywords: Vec<String>) {
+        let mut tool_details: Vec<(String, String)> = Vec::new();
+        for val in &self.tool_names {
+            let tool = self.get_tool(&val).unwrap();
+            let (nm, des) = get_name_and_description(tool);
+            for kw in &keywords {
+                if nm.to_lowercase().contains(&(kw.to_lowercase())) ||
+                   des.to_lowercase().contains(&(kw.to_lowercase())) {
+                    tool_details.push(get_name_and_description(self.get_tool(&val).unwrap()));
+                    break;
+                }
+            }
+        }
+
+        let mut ret = format!("All {} Tools containing keywords:\n", tool_details.len());
+        for i in 0..tool_details.len() {
+            ret.push_str(&format!("{}: {}\n\n", tool_details[i].0, tool_details[i].1));
+        }
+
+        println!("{}", ret);
+    }
+
+    pub fn get_tool_source_code(&self, tool_name: String) -> Result<(), Error> {
+        let repo = String::from("https://github.com/jblindsay/whitebox-geospatial-analysis-tools/blob/master/whitebox_tools/");
+        match self.get_tool(tool_name.as_ref()) {
+            Some(tool) => println!("{}{}", repo, tool.get_source_file()),
+            None => {
+                return Err(Error::new(ErrorKind::NotFound,
+                                      format!("Unrecognized tool name {}.", tool_name)))
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub trait WhiteboxTool {
@@ -703,6 +765,7 @@ pub trait WhiteboxTool {
     fn get_tool_description(&self) -> String;
     fn get_tool_parameters(&self) -> String;
     fn get_example_usage(&self) -> String;
+    fn get_source_file(&self) -> String;
     fn run<'a>(&self,
                args: Vec<String>,
                working_directory: &'a str,
@@ -714,29 +777,39 @@ fn get_help<'a>(wt: Box<WhiteboxTool + 'a>) -> String {
     let tool_name = wt.get_tool_name();
     let description = wt.get_tool_description();
     let parameters = wt.get_tool_parameters();
+    let o: serde_json::Value = serde_json::from_str(&parameters).unwrap();
+    let a = o["parameters"].as_array().unwrap();
+    let mut p = String::new();
+    for d in a {
+        let mut s = String::new();
+        for f in d["flags"].as_array().unwrap() {
+            s.push_str(&format!("{}, ", f.as_str().unwrap()));
+        }
+        p.push_str(&format!("{:width$} {}\n", s.trim().trim_matches(','), d["description"].as_str().unwrap(), width = 18));
+    }
     let example = wt.get_example_usage();
     let s: String;
     if example.len() <= 1 {
         s = format!("{} Help
-Description: {}
 
-Input parameters:
-{} \n\nNo example provided",
+Description:\n{}
+
+Parameters:\n{}
+",
                     tool_name,
-                    description,
-                    parameters);
+                    p,
+                    description);
     } else {
         s = format!("{} Help
-Description: {}
 
-Input parameters:
-{}
+Description:\n{}
 
+Parameters:\n{}
 Example usage:
 {}",
                     tool_name,
                     description,
-                    parameters,
+                    p,
                     example);
     }
     s
@@ -744,4 +817,50 @@ Example usage:
 
 fn get_name_and_description<'a>(wt: Box<WhiteboxTool + 'a>) -> (String, String) {
     (wt.get_tool_name(), wt.get_tool_description())
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ToolParameter {
+    name: String,
+    flags: Vec<String>,
+    description: String,
+    parameter_type: ParameterType,
+    default_value: Option<String>,
+    optional: bool
+}
+
+impl ToolParameter {
+    pub fn to_string(&self) -> String {
+        let v = match serde_json::to_string(&self) {
+            Ok(json_str) => json_str,
+            Err(err) => format!("{:?}", err),
+        };
+        v
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum ParameterType {
+    Boolean,
+    String,
+    StringList,
+    Integer,
+    Float,
+    StringOrNumber,
+    ExistingFile(ParameterFileType),
+    ExistingFileOrFloat(ParameterFileType),
+    NewFile(ParameterFileType),
+    FileList(ParameterFileType),
+    Directory,
+    OptionList(Vec<String>),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+enum ParameterFileType {
+    Any,
+    Lidar,
+    Raster,
+    Vector,
+    Text,
+    Html,
 }

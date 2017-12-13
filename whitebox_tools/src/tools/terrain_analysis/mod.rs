@@ -1,5 +1,6 @@
 // private sub-module defined in other files
 mod aspect;
+mod feature_preserving_denoise;
 mod dev_from_mean_elev; 
 mod diff_from_mean_elev;
 mod directional_relief;
@@ -10,6 +11,7 @@ mod elev_relative_to_min_max;
 mod elev_relative_to_watershed_min_max;
 mod fetch_analysis;
 mod fill_missing_data;
+mod find_ridges;
 mod hillshade;
 mod horizon_angle;
 mod max_branch_length;
@@ -36,6 +38,7 @@ mod wetness_index;
 
 // exports identifiers from private sub-modules in the current module namespace
 pub use self::aspect::Aspect;
+pub use self::feature_preserving_denoise::FeaturePreservingDenoise;
 pub use self::dev_from_mean_elev::DevFromMeanElev;
 pub use self::diff_from_mean_elev::DiffFromMeanElev;
 pub use self::directional_relief::DirectionalRelief;
@@ -46,6 +49,7 @@ pub use self::elev_relative_to_min_max::ElevRelativeToMinMax;
 pub use self::elev_relative_to_watershed_min_max::ElevRelativeToWatershedMinMax;
 pub use self::fetch_analysis::FetchAnalysis;
 pub use self::fill_missing_data::FillMissingData;
+pub use self::find_ridges::FindRidges;
 pub use self::hillshade::Hillshade;
 pub use self::horizon_angle::HorizonAngle;
 pub use self::max_branch_length::MaxBranchLength;

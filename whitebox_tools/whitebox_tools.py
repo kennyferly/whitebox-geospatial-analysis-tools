@@ -2,6 +2,13 @@
 ''' This file is intended to be a helper for running whitebox-tools plugins from a Python script.
 See whitebox_example.py for an example of how to use it.
 '''
+
+# This script is part of the WhiteboxTools geospatial analysis library.
+# Authors: Dr. John Lindsay
+# Created: November 28, 2017
+# Last Modified: November 28, 2017
+# License: MIT
+
 from __future__ import print_function
 import os
 from os import path
@@ -144,7 +151,7 @@ class WhiteboxTools(object):
             return err
 
     def version(self):
-        ''' Retrieves the version information for whitebox - tools.
+        ''' Retrieves the version information for whitebox-tools.
         '''
         try:
             os.chdir(self.exe_path)
@@ -189,7 +196,54 @@ class WhiteboxTools(object):
         except (OSError, ValueError, CalledProcessError) as err:
             return err
 
-    def list_tools(self):
+    def tool_parameters(self, tool_name):
+        ''' Retrieve the tool parameter descriptions for a specific tool.
+        '''
+        try:
+            os.chdir(self.exe_path)
+            args = []
+            args.append("." + os.path.sep + self.exe_name)
+            args.append("--toolparameters={}".format(tool_name))
+
+            proc = Popen(args, shell=False, stdout=PIPE,
+                         stderr=STDOUT, bufsize=1, universal_newlines=True)
+            ret = ""
+            while True:
+                line = proc.stdout.readline()
+                if line != '':
+                    ret += line
+                else:
+                    break
+
+            return ret
+        except (OSError, ValueError, CalledProcessError) as err:
+            return err
+
+    def view_code(self, tool_name):
+        ''' Opens a web browser to view the source code for a specific tool
+            on the projects source code repository.
+        '''
+        try:
+            os.chdir(self.exe_path)
+            args = []
+            args.append("." + os.path.sep + self.exe_name)
+            args.append("--viewcode={}".format(tool_name))
+
+            proc = Popen(args, shell=False, stdout=PIPE,
+                         stderr=STDOUT, bufsize=1, universal_newlines=True)
+            ret = ""
+            while True:
+                line = proc.stdout.readline()
+                if line != '':
+                    ret += line
+                else:
+                    break
+
+            return ret
+        except (OSError, ValueError, CalledProcessError) as err:
+            return err
+
+    def list_tools(self, keywords=[]):
         ''' Lists all available tools in whitebox - tools.
         '''
         try:
@@ -197,6 +251,9 @@ class WhiteboxTools(object):
             args = []
             args.append("." + os.path.sep + self.exe_name)
             args.append("--listtools")
+            if len(keywords) > 0:
+                for kw in keywords:
+                    args.append(kw)
 
             proc = Popen(args, shell=False, stdout=PIPE,
                          stderr=STDOUT, bufsize=1, universal_newlines=True)
