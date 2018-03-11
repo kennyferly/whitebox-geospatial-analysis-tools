@@ -247,6 +247,7 @@ public class DeleteSmallLakesAndExtendRivers implements ActionListener {
             // create the output lakes file
             AttributeTable lakesTable = lakesIn.getAttributeTable()
 			ShapeFile lakesOut = new ShapeFile(outputLakesFile, ShapeType.POLYGON, lakesTable.getAllFields())
+			lakesOut.setProjectionStringFromOtherFile(lakesIn.getProjectionFile())
 			i = 0
 			for (ShapeFileRecord record : lakesIn.records) {
             	lakePoly = (Polygon)record.getGeometry()
