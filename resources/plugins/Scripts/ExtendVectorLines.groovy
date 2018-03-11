@@ -122,6 +122,7 @@ public class ExtendVectorLines implements ActionListener {
 			
             // set up the output files of the shapefile and the dbf
             ShapeFile output = new ShapeFile(outputFile, shapeType);
+            output.setProjectionStringFromOtherFile(input.getProjectionFile())
             FileUtilities.copyFile(new File(input.getDatabaseFile()), new File(output.getDatabaseFile()));
             
             int featureNum = 0;

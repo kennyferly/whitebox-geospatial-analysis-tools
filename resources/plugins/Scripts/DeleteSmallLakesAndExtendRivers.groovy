@@ -275,6 +275,7 @@ public class DeleteSmallLakesAndExtendRivers implements ActionListener {
 			// create the output streams file
 			AttributeTable streamsTable = streamsIn.getAttributeTable()
 			ShapeFile streamsOut = new ShapeFile(outputStreamsFile, ShapeType.POLYLINE, streamsTable.getAllFields())
+			streamsOut.setProjectionStringFromOtherFile(streamsIn.getProjectionFile())
 			i = 0
 			for (ShapeFileRecord record : streamsIn.records) {
 				if (!prepended[i] && !appended[i]) {
