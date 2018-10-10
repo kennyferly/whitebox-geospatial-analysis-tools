@@ -239,7 +239,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
                                     //move x and y accordingly
                                     x += dX[c];
                                     y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
+                                    if (output.getValue(y, x) != -999 && output.getValue(y, x) != noData) {
                                         // you've hit a cell that already has
                                         // a flowlength assigned to it. Add it's
                                         // flowlength to the current value.
@@ -317,7 +317,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
                                     //move x and y accordingly
                                     x += dX[c];
                                     y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
+                                    if (output.getValue(y, x) != -999 && output.getValue(y, x) != noData) {
                                         // you've hit a cell that already has
                                         // a flowlength assigned to it. Add it's
                                         // flowlength to the current value.
@@ -394,7 +394,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
                                     //move x and y accordingly
                                     x += dX[c];
                                     y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
+                                    if (output.getValue(y, x) != -999 && output.getValue(y, x) != noData) {
                                         // you've hit a cell that already has
                                         // a flowlength assigned to it. Add it's
                                         // flowlength to the current value.
@@ -477,7 +477,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
                                     //move x and y accordingly
                                     x += dX[c];
                                     y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
+                                    if (output.getValue(y, x) != -999 && output.getValue(y, x) != noData) {
                                         // you've hit a cell that already has
                                         // a flowlength assigned to it. Add it's
                                         // flowlength to the current value.
