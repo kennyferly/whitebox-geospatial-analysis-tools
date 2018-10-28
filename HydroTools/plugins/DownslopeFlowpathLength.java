@@ -247,7 +247,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
                 }
 			}
 			
-			// the actual calculation begins here.
+			// The actual calculation begins here.
 			for (row = 0; row < rows; row++) {
 				for (col = 0; col < cols; col++) {
 					flowDir = pntr.getValue(row, col);
