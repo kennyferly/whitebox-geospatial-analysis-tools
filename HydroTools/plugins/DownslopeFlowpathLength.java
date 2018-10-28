@@ -276,41 +276,6 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
 								y += dY[c];
 							} else break; // You've hit the edge or a pit cell.
 						}
-=======
-                for (row = 0; row < rows; row++) {
-                    for (col = 0; col < cols; col++) {
-                        flowDir = pntr.getValue(row, col);
-                        watershedID = watershed.getValue(row, col);
-                        if (output.getValue(row, col) == -999 && flowDir != noData &&
-                                watershedID != noData) {
-                            // first travel down the flowpath accumulating the flow length.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            flowLength = 0;
-                            watershedID = watershed.getValue(row, col);
-                            do {
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0 && watershed.getValue(y, x) == watershedID) {
-                                    // what's the flow direction as an int?
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    flowLength += gridLengths[c] * weight.getValue(y, x);
-                                    //move x and y accordingly
-                                    x += dX[c];
-                                    y += dY[c];
-                                    if (output.getValue(y, x) != -999 && output.getValue(y, x) != noData) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Add it's
-                                        // flowlength to the current value.
-                                        flowLength += output.getValue(y, x);
-                                        flag = true;
-                                    }
-                                } else {  // you've hit the edge or a pit cell.
-                                    flag = true;
-                                }
-                            } while (!flag);
->>>>>>> 5046493965f72ef4a4260adfb3823967cd398ef4
 
 						// Travel down the flowpath a second time, this time assigning the flowpath length in reverse to the output.
 						x = col;
