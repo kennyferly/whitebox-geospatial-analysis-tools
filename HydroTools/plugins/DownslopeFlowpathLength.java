@@ -218,7 +218,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             WhiteboxRaster pntr = new WhiteboxRaster(inputHeader, "r");
             int rows = pntr.getNumberRows();
             int cols = pntr.getNumberColumns();
-            double noData = pntr.getNoDataValue();
+            double pntrNoData = pntr.getNoDataValue();
 
             double gridResX = pntr.getCellSizeX();
             double gridResY = pntr.getCellSizeY();
@@ -228,17 +228,19 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             WhiteboxRaster output = new WhiteboxRaster(outputHeader, "rw", inputHeader, WhiteboxRaster.DataType.FLOAT, -999);
             output.setPreferredPalette("spectrum.pal");
             output.setDataScale(WhiteboxRaster.DataScale.CONTINUOUS);
+			double outputNoData = output.getNoDataValue();
 
 			WhiteboxRaster watershed = null;
-			WhiteboxRaster weight = null;
+			double watershedNoData = 0; // Should never be used unless it's been set below and watershed != null.
 			if (blnWatershed) {
                 watershed = new WhiteboxRaster(watershedHeader, "r");
                 if (watershed.getNumberRows() != rows || watershed.getNumberColumns() != cols) {
                     showFeedback("The input images must be of the same dimensions.");
                     return;
                 }
-				showFeedback("watershed given");
+				watershedNoData = watershed.getNoDataValue();
 			}
+			WhiteboxRaster weight = null;
 			if (blnWeight) {
                 weight = new WhiteboxRaster(weightHeader, "r");
                 if (weight.getNumberRows() != rows || weight.getNumberColumns() != cols) {
@@ -252,7 +254,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
 				for (col = 0; col < cols; col++) {
 					flowDir = pntr.getValue(row, col);
 					watershedID = ((watershed == null) ? 0 : watershed.getValue(row, col));
-					if (output.getValue(row, col) == -999 && flowDir != noData && watershedID != noData) {
+					if (output.getValue(row, col) == -999 && flowDir != pntrNoData && watershedID != watershedNoData) {
 						// First travel down the flowpath accumulating the flow length.
 						x = col;
 						y = row;
@@ -298,8 +300,8 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
 								break;
 							}
 						}
-					} else if (flowDir == noData || watershedID == noData) {
-						output.setValue(row, col, noData);
+					} else if (flowDir == pntrNoData || watershedID == watershedNoData) {
+						output.setValue(row, col, outputNoData);
 					}
 				}
 				if (cancelOp) {
