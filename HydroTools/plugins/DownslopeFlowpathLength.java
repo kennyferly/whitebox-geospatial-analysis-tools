@@ -31,6 +31,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     private String[] args;
     // Constants
     private static final double LnOf2 = 0.693147180559945;
+	
     /**
      * Used to retrieve the plugin tool's name. This is a short, unique name containing no spaces.
      * @return String containing plugin name.
@@ -39,6 +40,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     public String getName() {
         return "DownslopeFlowpathLength";
     }
+	
     /**
      * Used to retrieve the plugin tool's descriptive name. This can be a longer name (containing spaces) and is used in the interface to list the tool.
      * @return String containing the plugin descriptive name.
@@ -47,6 +49,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     public String getDescriptiveName() {
         return "Downslope Flowpath Length";
     }
+	
     /**
      * Used to retrieve a short description of what the plugin tool does.
      * @return String containing the plugin's description.
@@ -55,6 +58,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     public String getToolDescription() {
         return "Calculates the downslope flowpath length from each cell to basin outlet.";
     }
+	
     /**
      * Used to identify which toolboxes this plugin tool should be listed in.
      * @return Array of Strings.
@@ -64,6 +68,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
         String[] ret = {"FlowpathTAs", "HydroTools"};
         return ret;
     }
+	
     /**
      * Sets the WhiteboxPluginHost to which the plugin tool is tied. This is the class
      * that the plugin will send all feedback messages, progress updates, and return objects.
@@ -73,6 +78,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     public void setPluginHost(WhiteboxPluginHost host) {
         myHost = host;
     }
+	
     /**
      * Used to communicate feedback pop-up messages between a plugin tool and the main Whitebox user-interface.
      * @param feedback String containing the text to display.
@@ -84,6 +90,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             System.out.println(message);
         }
     }
+	
     /**
      * Used to communicate a return object from a plugin tool to the main Whitebox user-interface.
      * @return Object, such as an output WhiteboxRaster.
@@ -93,6 +100,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             myHost.returnData(ret);
         }
     }
+	
     private int previousProgress = 0;
     private String previousProgressLabel = "";
     /**
@@ -108,6 +116,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
         previousProgress = progress;
         previousProgressLabel = progressLabel;
     }
+	
     /**
      * Used to communicate a progress update between a plugin tool and the main Whitebox user interface.
      * @param progress Float containing the progress value (between 0 and 100).
@@ -118,6 +127,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
         }
         previousProgress = progress;
     }
+	
     /**
      * Sets the arguments (parameters) used by the plugin.
      * @param args An array of string arguments.
@@ -126,6 +136,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
     public void setArgs(String[] args) {
         this.args = args.clone();
     }
+	
     private boolean cancelOp = false;
     /**
      * Used to communicate a cancel operation from the Whitebox GUI.
@@ -140,6 +151,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
         showFeedback("Operation cancelled.");
         updateProgress("Progress: ", 0);
     }
+	
     private boolean amIActive = false;
     /**
      * Used by the Whitebox GUI to tell if this plugin is still running.
@@ -167,7 +179,6 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
         int i, c;
         int[] dX = new int[]{1, 1, 1, 0, -1, -1, -1, 0};
         int[] dY = new int[]{-1, 0, 1, 1, 1, 0, -1, -1};
-        boolean flag = false;
         double flowDir = 0;
         double flowLength = 0;
         double watershedID = 0;
@@ -207,329 +218,106 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             WhiteboxRaster pntr = new WhiteboxRaster(inputHeader, "r");
             int rows = pntr.getNumberRows();
             int cols = pntr.getNumberColumns();
-            double noData = pntr.getNoDataValue();
+            double pntrNoData = pntr.getNoDataValue();
 
             double gridResX = pntr.getCellSizeX();
             double gridResY = pntr.getCellSizeY();
             double diagGridRes = Math.sqrt(gridResX * gridResX + gridResY * gridResY);
-            double[] gridLengths = new double[]{diagGridRes, gridResX, diagGridRes, gridResY, diagGridRes, gridResX, diagGridRes, gridResY};
+            double[] gridLengths = new double[]{ diagGridRes, gridResX, diagGridRes, gridResY, diagGridRes, gridResX, diagGridRes, gridResY };
             
-            WhiteboxRaster output = new WhiteboxRaster(outputHeader, "rw",
-                    inputHeader, WhiteboxRaster.DataType.FLOAT, -999);
+            WhiteboxRaster output = new WhiteboxRaster(outputHeader, "rw", inputHeader, WhiteboxRaster.DataType.FLOAT, -999);
             output.setPreferredPalette("spectrum.pal");
             output.setDataScale(WhiteboxRaster.DataScale.CONTINUOUS);
+			double outputNoData = output.getNoDataValue();
 
-            if (!blnWatershed && !blnWeight) {
-                for (row = 0; row < rows; row++) {
-                    for (col = 0; col < cols; col++) {
-                        flowDir = pntr.getValue(row, col);
-                        if (output.getValue(row, col) == -999 && flowDir != noData) {
-                            // first travel down the flowpath accumulating the flow length.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            flowLength = 0;
-                            do {
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    // what's the flow direction as an int?
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    flowLength += gridLengths[c];
-                                    //move x and y accordingly
-                                    x += dX[c];
-                                    y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Add it's
-                                        // flowlength to the current value.
-                                        flowLength += output.getValue(y, x);
-                                        flag = true;
-                                    }
-                                } else {  // you've hit the edge or a pit cell.
-                                    flag = true;
-                                }
-                            } while (!flag);
-
-                            // travel down the flowpath a second time, this time
-                            // assigning the flowpath length in reverse to the output.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            do {
-                                output.setValue(y, x, flowLength);
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    x += dX[c];
-                                    y += dY[c];
-                                    z = output.getValue(y, x);
-                                    if (z != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Stop.
-                                        flag = true;
-                                    } else {
-                                        flowLength -= gridLengths[c];
-                                    }
-                                } else { // you've hit the edge or a pit cell.
-                                    output.setValue(y, x, 0);
-                                    flag = true;
-                                }
-                            } while (!flag);
-                        } else if (flowDir == noData) {
-                            output.setValue(row, col, noData);
-                        }
-                    }
-                    if (cancelOp) {
-                        cancelOperation();
-                        return;
-                    }
-                    progress = (int) (100f * row / (rows - 1));
-                    updateProgress(progress);
-                }
-            } else if (blnWatershed && !blnWeight) {
-                WhiteboxRaster watershed = new WhiteboxRaster(watershedHeader, "r");
+			WhiteboxRaster watershed = null;
+			double watershedNoData = 0; // Should never be used unless it's been set below and watershed != null.
+			if (blnWatershed) {
+                watershed = new WhiteboxRaster(watershedHeader, "r");
                 if (watershed.getNumberRows() != rows || watershed.getNumberColumns() != cols) {
                     showFeedback("The input images must be of the same dimensions.");
                     return;
                 }
-
-                for (row = 0; row < rows; row++) {
-                    for (col = 0; col < cols; col++) {
-                        flowDir = pntr.getValue(row, col);
-                        watershedID = watershed.getValue(row, col);
-                        if (output.getValue(row, col) == -999 && flowDir != noData &&
-                                watershedID != noData) {
-                            // first travel down the flowpath accumulating the flow length.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            flowLength = 0;
-                            watershedID = watershed.getValue(row, col);
-                            do {
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0 && watershed.getValue(y, x) == watershedID) {
-                                    // what's the flow direction as an int?
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    flowLength += gridLengths[c];
-                                    //move x and y accordingly
-                                    x += dX[c];
-                                    y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Add it's
-                                        // flowlength to the current value.
-                                        flowLength += output.getValue(y, x);
-                                        flag = true;
-                                    }
-                                } else {  // you've hit the edge or a pit cell.
-                                    flag = true;
-                                }
-                            } while (!flag);
-
-                            // travel down the flowpath a second time, this time
-                            // assigning the flowpath length in reverse to the output.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            do {
-                                output.setValue(y, x, flowLength);
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    x += dX[c];
-                                    y += dY[c];
-                                    z = output.getValue(y, x);
-                                    if (z != -999 || watershed.getValue(y, x) != watershedID) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it or the
-                                        // edge of the watershed. Stop.
-                                        flag = true;
-                                    } else {
-                                        flowLength -= gridLengths[c];
-                                    }
-                                } else { // you've hit the edge or a pit cell.
-                                    output.setValue(y, x, 0);
-                                    flag = true;
-                                }
-                            } while (!flag);
-                        } else if (flowDir == noData || watershedID == noData) {
-                            output.setValue(row, col, noData);
-                        }
-                    }
-                    if (cancelOp) {
-                        cancelOperation();
-                        return;
-                    }
-                    progress = (int) (100f * row / (rows - 1));
-                    updateProgress(progress);
-                }
-                
-                watershed.close();
-            } else if (!blnWatershed && blnWeight) {
-                WhiteboxRaster weight = new WhiteboxRaster(weightHeader, "r");
+				watershedNoData = watershed.getNoDataValue();
+			}
+			WhiteboxRaster weight = null;
+			if (blnWeight) {
+                weight = new WhiteboxRaster(weightHeader, "r");
                 if (weight.getNumberRows() != rows || weight.getNumberColumns() != cols) {
                     showFeedback("The input images must be of the same dimensions.");
                     return;
                 }
-                for (row = 0; row < rows; row++) {
-                    for (col = 0; col < cols; col++) {
-                        flowDir = pntr.getValue(row, col);
-                        if (output.getValue(row, col) == -999 && flowDir != noData) {
-                            // first travel down the flowpath accumulating the flow length.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            flowLength = 0;
-                            do {
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    // what's the flow direction as an int?
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    flowLength += gridLengths[c] * weight.getValue(y, x);
-                                    //move x and y accordingly
-                                    x += dX[c];
-                                    y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Add it's
-                                        // flowlength to the current value.
-                                        flowLength += output.getValue(y, x);
-                                        flag = true;
-                                    }
-                                } else {  // you've hit the edge or a pit cell.
-                                    flag = true;
-                                }
-                            } while (!flag);
+			}
+			
+			// The actual calculation begins here.
+			for (row = 0; row < rows; row++) {
+				for (col = 0; col < cols; col++) {
+					flowDir = pntr.getValue(row, col);
+					watershedID = ((watershed == null) ? 0 : watershed.getValue(row, col));
+					if (output.getValue(row, col) == -999 && flowDir != pntrNoData && watershedID != watershedNoData) {
+						// First travel down the flowpath accumulating the flow length.
+						x = col;
+						y = row;
+						flowLength = 0;
+						while (true) {
+							// Find it's downslope neighbour.
+							flowDir = pntr.getValue(y, x);
+							if (flowDir > 0 && (watershed == null || watershed.getValue(y, x) == watershedID)) {
+								// Check if this cell already has a flowlength.
+								if ((z = output.getValue(y, x)) != -999) {
+									// You've hit a cell that already has a flowlength assigned to it.
+									// Add it's flowlength to the current value.
+									flowLength += z;
+									break;
+								}
+								// What's the flow direction as an int?
+								c = (int) (Math.log(flowDir) / LnOf2); // If this fails a very blurry error message pops up.
+								flowLength += gridLengths[c] * ((weight == null) ? 1 : weight.getValue(y, x));
+								// Move x and y accordingly.
+								x += dX[c];
+								y += dY[c];
+							} else break; // You've hit the edge or a pit cell.
+						}
 
-                            // travel down the flowpath a second time, this time
-                            // assigning the flowpath length in reverse to the output.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            do {
-                                output.setValue(y, x, flowLength);
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    x += dX[c];
-                                    y += dY[c];
-                                    z = output.getValue(y, x);
-                                    if (z != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Stop.
-                                        flag = true;
-                                    } else {
-                                        flowLength -= gridLengths[c] * weight.getValue(y, x);
-                                    }
-                                } else { // you've hit the edge or a pit cell.
-                                    output.setValue(y, x, 0);
-                                    flag = true;
-                                }
-                            } while (!flag);
-                        } else if (flowDir == noData) {
-                            output.setValue(row, col, noData);
-                        }
-                    }
-                    if (cancelOp) {
-                        cancelOperation();
-                        return;
-                    }
-                    progress = (int) (100f * row / (rows - 1));
-                    updateProgress(progress);
-                }
-                weight.close();
-            } else { // a Watershed image and weight image have both been specified.
-                WhiteboxRaster watershed = new WhiteboxRaster(watershedHeader, "r");
-                if (watershed.getNumberRows() != rows || watershed.getNumberColumns() != cols) {
-                    showFeedback("The input images must be of the same dimensions.");
-                    return;
-                }
-                WhiteboxRaster weight = new WhiteboxRaster(weightHeader, "r");
-                if (weight.getNumberRows() != rows || weight.getNumberColumns() != cols) {
-                    showFeedback("The input images must be of the same dimensions.");
-                    return;
-                }
-                for (row = 0; row < rows; row++) {
-                    for (col = 0; col < cols; col++) {
-                        flowDir = pntr.getValue(row, col);
-                        watershedID = watershed.getValue(row, col);
-                        if (output.getValue(row, col) == -999 && flowDir != noData &&
-                                watershedID != noData) {
-                            // first travel down the flowpath accumulating the flow length.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            flowLength = 0;
-                            watershedID = watershed.getValue(row, col);
-                            do {
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0 && watershed.getValue(y, x) == watershedID) {
-                                    // what's the flow direction as an int?
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    flowLength += gridLengths[c] * weight.getValue(y, x);
-                                    //move x and y accordingly
-                                    x += dX[c];
-                                    y += dY[c];
-                                    if (output.getValue(y, x) != -999) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it. Add it's
-                                        // flowlength to the current value.
-                                        flowLength += output.getValue(y, x);
-                                        flag = true;
-                                    }
-                                } else {  // you've hit the edge or a pit cell.
-                                    flag = true;
-                                }
-                            } while (!flag);
-
-                            // travel down the flowpath a second time, this time
-                            // assigning the flowpath length in reverse to the output.
-                            flag = false;
-                            x = col;
-                            y = row;
-                            do {
-                                output.setValue(y, x, flowLength);
-                                // find it's downslope neighbour
-                                flowDir = pntr.getValue(y, x);
-                                if (flowDir > 0) {
-                                    c = (int) (Math.log(flowDir) / LnOf2);
-                                    x += dX[c];
-                                    y += dY[c];
-                                    z = output.getValue(y, x);
-                                    if (z != -999 || watershed.getValue(y, x) != watershedID) {
-                                        // you've hit a cell that already has
-                                        // a flowlength assigned to it or the
-                                        // edge of the watershed. Stop.
-                                        flag = true;
-                                    } else {
-                                        flowLength -= gridLengths[c] * weight.getValue(y, x);
-                                    }
-                                } else { // you've hit the edge or a pit cell.
-                                    output.setValue(y, x, 0);
-                                    flag = true;
-                                }
-                            } while (!flag);
-                        } else if (flowDir == noData || watershedID == noData) {
-                            output.setValue(row, col, noData);
-                        }
-                    }
-                    if (cancelOp) {
-                        cancelOperation();
-                        return;
-                    }
-                    progress = (int) (100f * row / (rows - 1));
-                    updateProgress(progress);
-                }
-                weight.close();
+						// Travel down the flowpath a second time, this time assigning the flowpath length in reverse to the output.
+						x = col;
+						y = row;
+						while (true) {
+							output.setValue(y, x, flowLength);
+							// Find it's downslope neighbour.
+							flowDir = pntr.getValue(y, x);
+							if (flowDir > 0 && (watershed == null || watershed.getValue(y, x) == watershedID)) {
+								if (output.getValue(y, x) != -999) {
+									// You've hit a cell that already has a flowlength assigned to it or the edge of the watershed. Stop.
+									break;
+								}
+								c = (int) (Math.log(flowDir) / LnOf2); // If this fails a very blurry error message pops up.
+								flowLength -= gridLengths[c] * ((weight == null) ? 1 : weight.getValue(y, x));
+								x += dX[c];
+								y += dY[c];
+							} else { // You've hit the edge or a pit cell.
+								//output.setValue(y, x, 0); // TODO I don't believe this makes sense.
+								break;
+							}
+						}
+					} else if (flowDir == pntrNoData || watershedID == watershedNoData) {
+						output.setValue(row, col, outputNoData);
+					}
+				}
+				if (cancelOp) {
+					cancelOperation();
+					return;
+				}
+				progress = (int) (100f * row / (rows - 1));
+				updateProgress(progress);
+			}
+		
+			// We're pretty much done, round up.
+			
+			if (watershed != null)
                 watershed.close();
-            }
+			if (weight != null)
+				weight.close();
 
             output.addMetadataEntry("Created by the "
                     + getDescriptiveName() + " tool.");
@@ -538,7 +326,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             pntr.close();
             output.close();
 
-            // returning a header file string displays the image.
+            // Returning a header file string displays the image.
             returnData(outputHeader);
 
         } catch (OutOfMemoryError oe) {
@@ -548,7 +336,7 @@ public class DownslopeFlowpathLength implements WhiteboxPlugin {
             myHost.logException("Error in " + getDescriptiveName(), e);
         } finally {
             updateProgress("Progress: ", 0);
-            // tells the main application that this process is completed.
+            // Tells the main application that this process is completed.
             amIActive = false;
             myHost.pluginComplete();
         }
