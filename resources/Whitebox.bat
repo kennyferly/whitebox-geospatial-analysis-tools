@@ -1,1 +1,1 @@
-java -jar WhiteboxGIS.jar
+java -jar %~dp0\WhiteboxGIS.jar
